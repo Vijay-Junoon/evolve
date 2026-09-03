@@ -23,13 +23,15 @@ Every specimen spawned into the environment is assigned distinct biological attr
 * **Speed (⚡)**: Dictates how quickly the specimen navigates the grid toward resources or away from threats.
 * **Strength (💪)**: Determines the outcome of physical confrontations and competitive resource disputes.
 * **Aggression (👹)**: Governs behavioral tendencies—influencing whether an organism prioritizes passive foraging or hostile competition against rivals.
+* **Field of View (👁️)**: Sensory vision radius defining how far an organism can scan for provisions in the surrounding grid.
+* **Survival Score (❤️)**: Dynamic vitality rating tracking organism health, incremented upon consuming nutritional food items.
 * **Spatial Coordinates (📍)**: Real-time tracking of organism positioning across the matrix.
 
 ### 3. Resource Ecology (Food System)
-Nutritional resources are scattered across the terrain to fuel specimen survival. Competition for these limited provisions forms the primary evolutionary catalyst for natural selection.
+Nutritional resources are scattered across the terrain to fuel specimen survival. Each food item carries a distinct **Food Score (🍎)** representing its nutritional and energy yield. Competition for these limited provisions forms the primary evolutionary catalyst for natural selection.
 
 ### 4. Real-Time Visual Observation
-The ecosystem state is rendered graphically onto a 2D coordinate plot, utilizing distinct visual glyphs to represent each specimen and resource item in real time.
+The ecosystem state is rendered graphically onto a 2D coordinate plot, utilizing distinct visual colormaps and coordinate matrices to represent terrain, specimens, and resources in real time.
 
 ---
 
@@ -43,10 +45,11 @@ The development of **PRIMAL** is structured across progressive evolutionary phas
 * Distribution of food items across random coordinate locations.
 * Graphical visualization of specimens and resources on a coordinate plane.
 
-### 👁️ Phase 2: Sensory Perception & Movement *(Current Focus)*
-* Implementation of a Field of View (FOV) radius for each specimen.
-* Proximity detection and distance calculation to locate the nearest food sources.
-* Directional pathfinding and autonomous movement mechanics toward detected targets.
+### 👁️ Phase 2: Sensory Perception & Movement *(In Progress)*
+* ✅ Implementation of a Field of View (FOV) radius for each specimen.
+* ✅ Proximity detection and sensory scanning algorithm to locate food items within FOV.
+* ✅ Resource consumption and dynamic survival score accumulation.
+* 🔄 Directional multi-step pathfinding and autonomous movement mechanics toward detected targets.
 
 ### 🧬 Phase 3: Reproduction & Genetic Inheritance
 * Energy storage thresholds required for reproduction.
@@ -73,5 +76,19 @@ The development of **PRIMAL** is structured across progressive evolutionary phas
 * Implemented food item generation and spatial mapping.
 * Connected the simulation state to a graphical visualization pipeline using Matplotlib to display emoji-based specimen markers at their exact coordinates.
 * **Next Objective**: Implement sensory FOV calculation so organisms can actively detect and navigate toward nearby sustenance.
+
+---
+
+### Day 02 — Sensory Perception, Nutritional Yield & FOV Foraging
+* **Nutritional Scoring for Resources**: Introduced `foodScore` (range 2–7) to individual `Food` entities, quantifying the energy return of each food source.
+* **Survival Score Trait for Organisms**: Added dynamic `survival_score` (initialized 1–5) to `Character` attributes to track organism vitality.
+* **Field of View (FOV) Sensory Detection**: Implemented randomized specimen vision radii (`fov` range 3–7) and a spatial boundary detection algorithm:
+  $$\Delta x \le \text{FOV} \quad \text{and} \quad \Delta y \le \text{FOV}$$
+* **Target Acquisition & Consumption**: Enabled organisms to identify target food items within their sensory perimeter, consume them, absorb their nutritional value into `survival_score`, and update grid coordinates dynamically.
+* **Expanded Environment & Colormap Rendering**: Scaled the perimeter matrix to 15x15 and integrated Matplotlib `ListedColormap` visualization (Green: Empty terrain, Red: Characters, Blue: Food items).
+
+![Day 02 Simulation Preview](assets/day-02-fov-simulation.png)
+
+* **Next Objective**: Implement multi-step directional pathfinding toward out-of-range targets and multi-character resource competition dynamics.
 
 ---
