@@ -15,7 +15,7 @@ COLS = 15
 perimeter = [[0] * COLS for i in range(ROWS)]
 
 # * Entites
-CHARACTERS = 1
+CHARACTERS = 3
 FOOD = 5
 
 names = [
@@ -70,14 +70,33 @@ def spawnFood():
     perimeter[x][y] = 2
     entities['Food'].append(Food(x,y,foodScore))
 
+visited = set()
+def searchFood(char,r,c):
+  if r < 0 or r >= ROWS or c < 0 or c >= COLS or (r,c) in visited: 
+    return False
+
+  visited.add((r,c))
+  if perimeter[r][c] == 2:
+    perimeter[char.x][char.y] = 0
+    char.x,char.y = r,c
+    perimeter[r][c] = 1
+    return True
+
+  return (searchFood(char,r+1,c) or
+  searchFood(char,r-1,c) or
+  searchFood(char,r,c+1) or
+  searchFood(char,r,c-1)
+  )
+
 spawnCharacters()
 spawnFood()
 
 colourMap = ['green', 'red', 'blue']
 cmap = ListedColormap(colourMap)
+plt.figure(1)
 plt.imshow(perimeter, cmap=cmap)
 plt.colorbar()
-
+plt.show(block = False)
 for char in entities['Character']:
   features = char.getFeatures()
   fov = features['fov']
@@ -85,6 +104,8 @@ for char in entities['Character']:
   x,y = char.getPos()
   for foodItem in entities['Food']:
     food_x,food_y = foodItem.getPos()
+    if perimeter[food_x][food_y] != 2:
+      continue
     food_score = foodItem.getScore()
     if abs(x - food_x) <= fov and abs(y-food_y) <= fov:
       print(f"Character at {x,y} can eat food item at {food_x,food_y}")
@@ -95,9 +116,14 @@ for char in entities['Character']:
       char.x,char.y = food_x,food_y
       perimeter[food_x][food_y] = 1
       break
+  else:
+    print("Nothing found in FOV. Search initiated.")
+    searchFood(char,x,y)
+    print(f"Character at {x,y} can eat food item at {char.x,char.y}")
+    print(f"Character at {x,y} ate food item at {char.x,char.y}")
 
+plt.figure(2)
 plt.imshow(perimeter, cmap=cmap)
 plt.colorbar()
-
 plt.show()
 

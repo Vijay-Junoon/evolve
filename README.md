@@ -48,6 +48,7 @@ The development of **PRIMAL** is structured across progressive evolutionary phas
 ### 👁️ Phase 2: Sensory Perception & Movement *(In Progress)*
 * ✅ Implementation of a Field of View (FOV) radius for each specimen.
 * ✅ Proximity detection and sensory scanning algorithm to locate food items within FOV.
+* ✅ Fallback searching algorithm (recursive matrix exploration) for specimens when food is outside FOV.
 * ✅ Resource consumption and dynamic survival score accumulation.
 * 🔄 Directional multi-step pathfinding and autonomous movement mechanics toward detected targets.
 
@@ -79,15 +80,16 @@ The development of **PRIMAL** is structured across progressive evolutionary phas
 
 ---
 
-### Day 02 — Sensory Perception, Nutritional Yield & FOV Foraging
+### Day 02 — Sensory Perception, Nutritional Yield & Fallback Search Algorithm
 * **Nutritional Scoring for Resources**: Introduced `foodScore` (range 2–7) to individual `Food` entities, quantifying the energy return of each food source.
 * **Survival Score Trait for Organisms**: Added dynamic `survival_score` (initialized 1–5) to `Character` attributes to track organism vitality.
 * **Field of View (FOV) Sensory Detection**: Implemented randomized specimen vision radii (`fov` range 3–7) and a spatial boundary detection algorithm:
   $$\Delta x \le \text{FOV} \quad \text{and} \quad \Delta y \le \text{FOV}$$
 * **Target Acquisition & Consumption**: Enabled organisms to identify target food items within their sensory perimeter, consume them, absorb their nutritional value into `survival_score`, and update grid coordinates dynamically.
-* **Expanded Environment & Colormap Rendering**: Scaled the perimeter matrix to 15x15 and integrated Matplotlib `ListedColormap` visualization (Green: Empty terrain, Red: Characters, Blue: Food items).
+* **Fallback Searching Algorithm (Out-of-FOV Exploration)**: Implemented a recursive spatial search (`searchFood`) using depth-first matrix exploration and a `visited` coordinate set. When no food is detected within a specimen's FOV, the organism triggers a fallback search across cardinal grid directions (Up, Down, Left, Right) to locate and acquire nourishment across the matrix.
+* **Expanded Environment & Dual-State Visual Output**: Scaled the perimeter matrix to 15x15 with Matplotlib `ListedColormap` rendering (Green: Empty terrain, Red: Characters, Blue: Food items) and dual-figure visualization tracking the ecosystem state before (Figure 1) and after (Figure 2) foraging and search execution.
 
-![Day 02 Simulation Preview](assets/day-02-fov-simulation.png)
+![Day 02 Simulation Preview — FOV Detection & Fallback Search Algorithm](assets/day-02-search-algorithm.png)
 
 * **Next Objective**: Implement multi-step directional pathfinding toward out-of-range targets and multi-character resource competition dynamics.
 
