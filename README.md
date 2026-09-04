@@ -6,93 +6,120 @@
 
 ## 🌍 Overview & Vision
 
-**PRIMAL** is an evolutionary simulation inspired by Darwinian theory and computational biology. The project models how autonomous digital organisms—each equipped with unique physical and biological traits—interact, compete, survive, and evolve inside a shared ecosystem.
+**PRIMAL** is an evolutionary simulation inspired by Darwinian theory and computational biology. The project models how autonomous digital organisms—each equipped with unique physical and behavioral traits—interact, compete, survive, and evolve inside a shared ecosystem.
 
 By introducing environmental pressures such as finite resources, sensory limitations, and competitive interactions, the simulation demonstrates how complex emergent behaviors arise from simple biological rules.
 
 ---
 
-## 📅 Day - 03 Updates & Highlights
-
-Today's progress focused on graduating PRIMAL from a Matplotlib CLI script into a fully animated, browser-based web simulation platform with rich 16-bit retro naturalist aesthetics and active mortality dynamics:
-
-1. **Interactive Web Simulation Platform (Flask + Vanilla JS)**:
-   - Replaced Matplotlib visualization with a client-server architecture powered by a Python Flask REST API (`/api/state`, `/api/next-day`, `/api/reset`, `/api/config`) and a zero-dependency HTML5/CSS3/Vanilla JS frontend.
-2. **16-bit Retro Naturalist Terrarium UI (Stitch Project 9314891166410478330)**:
-   - Designed a 1990s expedition field desk theme with deep forest green, heartwood timber, and aged parchment color palette.
-   - 3-column workstation layout: **Expedition Toolkit** (controls, solar rate slider, habitat regulator, presets), **Oak Frame Vitrine** (coordinate rulers, full-perimeter canvas, camera modes), and **Naturalist Ledger & DNA Dossier** (census, segmented biomass meter, allele progress bars).
-   - Space Mono and Courier Prime typography with authentic 90° stepped drop shadows.
-3. **Step-by-Step Movement & Path Interpolation**:
-   - Eliminated abrupt teleportation; organisms now smoothly traverse step-by-step across calculated grid paths.
-4. **Vitality Depletion & Critical Mortality Threshold**:
-   - Organisms expend energy while moving: each step costs **1 Vitality (Survival Score)** with floating `-1 ❤️` indicators.
-   - If an organism's vitality drops below **3**, the specimen succumbs to exhaustion and is removed from the habitat with a red critical death disintegration animation.
-5. **Sensory Perception & Fallback DFS Search**:
-   - Implemented Chebyshev Field of View (FOV) scanning and fallback recursive Depth-First Search (DFS) with animated exploration sonar trails.
-6. **Visual Asset Scaling & Alignment**:
-   - Trees rendered as 2x2 expansive canopies (`190%` scale).
-   - Organisms enlarged to `190%` for crisp sprite visibility.
-   - Food items rendered as compact nutritional deposits (`80%`).
-   - Y-axis coordinate ruler numbers aligned with grid rows.
-
----
-
-## 💻 Architecture & Directory Structure
-
-```
-PRIMAL/
-│
-├── app.py                     # Flask web server & REST API endpoints
-├── requirements.txt           # Python dependencies (Flask)
-├── .gitignore                 # Git ignore configuration
-│
-├── simulation/                # Core simulation domain engine
-│   ├── __init__.py
-│   ├── world.py               # 2D habitat matrix, occupancy & entity management
-│   ├── engine.py              # Day cycle orchestrator, path execution & mortality
-│   └── algorithms.py          # Chebyshev FOV scanning & recursive DFS exploration
-│
-├── entities/                  # Object models with biological traits
-│   ├── __init__.py
-│   ├── character.py           # Organisms with Speed, Strength, Aggression, FOV, Vitality
-│   ├── food.py                # Sustenance resources with nutritional score
-│   └── tree.py                # Environmental scenery & obstacles
-│
-├── templates/
-│   └── index.html             # 3-column Naturalist Field Desk UI
-│
-└── static/
-    ├── css/
-    │   └── style.css          # Stitch theme tokens, stepped shadows & animations
-    ├── js/
-    │   └── simulation.js      # Animation pipeline, DOM controller & telemetry stream
-    └── assets/
-        ├── playground.png     # Full-perimeter habitat ground canvas
-        ├── characters/        # Organism sprites (character_1.png, character_2.png, character_3.png)
-        ├── food/              # Sustenance sprites (apple.png)
-        └── environment/       # Scenery sprites (tree.png)
-```
-
----
-
 ## 🔬 Core Mechanics
 
-### 1. The Environment (Terrarium Matrix)
-The simulation takes place on a configurable two-dimensional grid representing a bounded habitat with full-perimeter terrain. Organisms, food resources, and ancient trees coexist within this coordinate space.
+### 1. The Environment (Perimeter Matrix)
+The simulation takes place on a configurable two-dimensional grid representing a bounded habitat. Organisms and consumable resources coexist within this coordinate space, forming an active testing ground for evolutionary pressures.
 
-### 2. Specimen Architecture & Biological Trait System
-Every specimen spawned into the environment is assigned distinct biological attributes:
+### 2. Specimen Architecture & Trait System
+Every specimen spawned into the environment is assigned distinct biological attributes that influence its survival capabilities:
 
-* **Speed (⚡)**: Dictates foraging turn priority and movement speed.
-* **Strength (💪)**: Determines outcome of physical confrontations and resource disputes.
-* **Aggression (👹)**: Governs behavioral tendencies toward rival organisms.
-* **Field of View (👁️)**: Sensory vision radius defining how far an organism can detect sustenance.
-* **Vitality / Survival Score (❤️)**: Dynamic energy rating tracking health; depleted by **-1 per movement step** and replenished upon consuming food (+Score).
-* **Mortality (< 3 Vitality)**: If vitality falls below 3, the organism perishes.
+* **Speed (⚡)**: Dictates foraging priority and navigation speed toward resources.
+* **Strength (💪)**: Determines the outcome of physical confrontations and competitive resource disputes.
+* **Aggression (👹)**: Governs behavioral tendencies—influencing whether an organism prioritizes passive foraging or hostile competition against rivals.
+* **Field of View (👁️)**: Sensory vision radius defining how far an organism can scan for provisions in the surrounding grid.
+* **Survival Score / Vitality (❤️)**: Dynamic vitality rating tracking organism health, incremented upon consuming nutritional food items and depleted by movement.
+* **Spatial Coordinates (📍)**: Real-time tracking of organism positioning across the matrix.
 
-### 3. Sensory FOV Perception & Fallback Recursive Search (DFS)
-* **FOV Scanning**: Each day, organisms scan their Field of View radius ($\Delta x \le \text{FOV} \land \Delta y \le \text{FOV}$). If food is spotted, the specimen moves step-by-step toward the target and consumes it.
-* **Fallback Recursive DFS**: When no food is detected within sensory range, the organism executes a recursive Depth-First Search across the matrix to locate available sustenance.
+### 3. Resource Ecology (Food System)
+Nutritional resources are scattered across the terrain to fuel specimen survival. Each food item carries a distinct **Food Score (🍎)** representing its nutritional and energy yield. Competition for these limited provisions forms the primary evolutionary catalyst for natural selection.
+
+### 4. Real-Time Visual Observation
+The ecosystem state is rendered graphically onto a 2D coordinate plot, utilizing full-perimeter terrain graphics, coordinate rulers, and layered entity sprites in real time.
+
+---
+
+## 🗺️ Evolutionary Roadmap
+
+The development of **PRIMAL** is structured across progressive evolutionary phases:
+
+### 🌱 Phase 1: Spawning & Resource Ecology *(Completed)*
+* ✅ Initialization of the two-dimensional spatial perimeter.
+* ✅ Randomized entity generation with variable baseline attributes (Speed, Strength, Aggression).
+* ✅ Distribution of food items across random coordinate locations.
+* ✅ Graphical visualization of specimens and resources on a coordinate plane.
+
+### 👁️ Phase 2: Sensory Perception & Movement *(Completed)*
+* ✅ Implementation of a Field of View (FOV) radius for each specimen.
+* ✅ Proximity detection and sensory scanning algorithm to locate food items within FOV.
+* ✅ Fallback searching algorithm (recursive matrix exploration) for specimens when food is outside FOV.
+* ✅ Resource consumption and dynamic survival score accumulation.
+* ✅ Directional multi-step pathfinding and autonomous movement mechanics toward detected targets.
+
+### 💻 Phase 3: Interactive Web Platform, Animation Pipeline & Mortality Dynamics *(In Progress)*
+* ✅ Transition from static Matplotlib plotting to full-stack Python Flask + Vanilla HTML/CSS/JS web platform.
+* ✅ 16-bit retro naturalist terrarium interface with 3-column workstation layout.
+* ✅ Step-by-step path interpolation and movement animation.
+* ✅ Step energy cost (-1 Vitality per step) with floating indicators.
+* ✅ Mortality threshold: Organisms with Vitality < 3 succumb to exhaustion with red critical death disintegration.
+* 🔄 Multi-day persistence and day-to-day carrying capacity tracking.
+
+### 🧬 Phase 4: Reproduction & Genetic Inheritance
+* Energy storage thresholds required for reproduction.
+* Trait transmission from parent organisms to offspring.
+* Introduction of genetic mutations to drive diversity and trait drift.
+
+### ⚔️ Phase 5: Competition & Natural Selection
+* Interaction dynamics when specimens contest the same resource.
+* Combat and dominance resolution determined by Strength and Aggression ratios.
+* Survival of the fittest: organisms with advantageous trait combinations reproduce more successfully.
+
+### 💀 Phase 6: Mortality & Population Dynamics
+* Natural lifespan limits and specimen decay over generational cycles.
+* Population equilibrium tracking and carrying capacity analysis.
+
+---
+
+## 📓 Development Journey
+
+### Day 01 — Genesis: Grid Foundation & Entity Spawning
+* Established the core 10x10 spatial perimeter for the ecosystem.
+* Built the initial character class with randomized physical attributes: Speed (1–7), Strength (1–6), and Aggression (1–9).
+* Implemented food item generation and spatial mapping.
+* Connected the simulation state to a graphical visualization pipeline using Matplotlib to display emoji-based specimen markers at their exact coordinates.
+* **Next Objective**: Implement sensory FOV calculation so organisms can actively detect and navigate toward nearby sustenance.
+
+---
+
+### Day 02 — Sensory Perception, Nutritional Yield & Fallback Search Algorithm
+* **Nutritional Scoring for Resources**: Introduced `foodScore` (range 2–7) to individual `Food` entities, quantifying the energy return of each food source.
+* **Survival Score Trait for Organisms**: Added dynamic `survival_score` (initialized 1–5) to `Character` attributes to track organism vitality.
+* **Field of View (FOV) Sensory Detection**: Implemented randomized specimen vision radii (`fov` range 3–7) and a spatial boundary detection algorithm:
+  $$\Delta x \le \text{FOV} \quad \text{and} \quad \Delta y \le \text{FOV}$$
+* **Target Acquisition & Consumption**: Enabled organisms to identify target food items within their sensory perimeter, consume them, absorb their nutritional value into `survival_score`, and update grid coordinates dynamically.
+* **Fallback Searching Algorithm (Out-of-FOV Exploration)**: Implemented a recursive spatial search (`searchFood`) using depth-first matrix exploration and a `visited` coordinate set. When no food is detected within a specimen's FOV, the organism triggers a fallback search across cardinal grid directions (Up, Down, Left, Right) to locate and acquire nourishment across the matrix.
+* **Expanded Environment & Dual-State Visual Output**: Scaled the perimeter matrix to 15x15 with Matplotlib `ListedColormap` rendering (Green: Empty terrain, Red: Characters, Blue: Food items) and dual-figure visualization tracking the ecosystem state before (Figure 1) and after (Figure 2) foraging and search execution.
+
+![Day 02 Simulation Preview — FOV Detection & Fallback Search Algorithm](assets/day-02-search-algorithm.png)
+
+* **Next Objective**: Implement multi-step directional pathfinding toward out-of-range targets and multi-character resource competition dynamics.
+
+---
+
+### Day 03 — Interactive Web Platform, 16-Bit Terrarium UI, Step Traversal & Mortality Dynamics
+* **Interactive Web Simulation Platform (Flask + Vanilla JS)**:
+  - Replaced Matplotlib CLI visualization with a full-stack web simulation powered by a Python Flask REST API (`/api/state`, `/api/next-day`, `/api/reset`, `/api/config`) and a zero-dependency HTML5/CSS3/Vanilla JS frontend.
+* **16-Bit Retro Naturalist Terrarium UI**:
+  - Designed a 1990s expedition field desk theme featuring a deep forest green, heartwood timber, and aged parchment color palette with 90° stepped drop shadows.
+  - Built a 3-column workstation layout: **Expedition Toolkit** (controls, solar rate slider, habitat regulator, presets), **Oak Frame Vitrine** (coordinate rulers, full-perimeter canvas, camera tools), and **Naturalist Ledger & DNA Dossier** (census, segmented biomass meter, allele trait bars).
+* **Step-by-Step Movement & Path Interpolation**:
+  - Eliminated abrupt teleportation; organisms smoothly traverse step-by-step across calculated grid paths.
+* **Vitality Depletion & Critical Mortality Threshold**:
+  - Organisms expend energy while moving: each step costs **1 Vitality (Survival Score)** with floating `-1 ❤️` indicators.
+  - If vitality drops below **3**, the specimen succumbs to exhaustion and is removed from the habitat with a red critical death disintegration animation.
+* **Sensory Perception & Fallback DFS Search**:
+  - Implemented Chebyshev Field of View (FOV) scanning and fallback recursive Depth-First Search (DFS) with animated exploration sonar trails.
+* **Visual Asset Scaling & Alignment**:
+  - Trees rendered as 2x2 expansive canopies (`190%` scale).
+  - Organisms enlarged to `190%` for crisp sprite visibility.
+  - Food items rendered as compact nutritional deposits (`80%`).
+  - Y-axis coordinate ruler numbers aligned with grid rows.
 
 ---
 
@@ -110,25 +137,3 @@ Every specimen spawned into the environment is assigned distinct biological attr
 
 3. **Open the browser**:
    Navigate to `http://127.0.0.1:5000/`
-
----
-
-## 🎮 Interface Features
-
-* **Expedition Toolkit**: `RUN`, `HALT`, and `STEP 1 DAY [SPACE]` controls with stepped solar rate slider (`0.5x` to `4.0x`).
-* **Habitat Regulator**: Real-time matrix resizing (10x10, 12x12, 15x15), organism population, food count, tree density, and daily drop rate.
-* **Ecosystem Presets**: One-click configurations (*Standard Temperate Grove*, *Resource Scarcity Crisis*, *Dense Jungle Sanctuary*).
-* **DNA Specimen Dossier**: Interactive dossier with segmented pixel meters for Speed, Strength, Aggression, FOV, and Vitality, plus active FOV projection overlay.
-* **Biomass Integrity Meter**: 10-segment live health rating reflecting the colony's vitality status.
-* **Field Research Journal**: Real-time event stream tracking genesis, sensory scans, DFS search pulses, movements, feedings, and mortality.
-
----
-
-## 🗺️ Evolutionary Roadmap
-
-* [x] **Phase 1: Spawning & Resource Ecology**
-* [x] **Phase 2: Sensory Perception, FOV Detection & Fallback DFS Exploration**
-* [ ] **Phase 3: Interactive Web Platform, Animation Pipeline & Mortality Dynamics** *(In Progress)*
-* [ ] **Phase 4: Reproduction, Genetic Mutations & Trait Inheritance**
-* [ ] **Phase 5: Organism Competition, Combat & Natural Selection**
-* [ ] **Phase 6: Multi-Generational Analytics & Population Dynamics**
