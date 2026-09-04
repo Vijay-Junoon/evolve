@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIMAL — Terrarium Evolution Simulator</title>
+    <!-- Google Fonts: Space Mono & Courier Prime (Matching Stitch Design System) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="naturalist-theme select-none antialiased">
+    <!-- TOP FIXED HEADER -->
+    <header class="field-header">
+        <div class="header-inner">
+            <!-- Brand Section -->
+            <div class="brand-group">
+                <div class="brand-badge-box">
+                    <span class="brand-emoji">🧬</span>
+                </div>
+                <div class="brand-titles">
+                    <div class="title-row">
+                        <span class="brand-title">PRIMAL</span>
+                        <span class="version-tag">EXP.V1</span>
+                    </div>
+                    <span class="brand-subtitle">An Artificial Evolution Experiment</span>
+                </div>
+            </div>
+
+            <!-- Top Navigation Tabs -->
+            <nav class="field-nav">
+                <button class="nav-tab active" data-tab="simulation">SIMULATION</button>
+                <button class="nav-tab" data-tab="specimens">SPECIMENS</button>
+                <button class="nav-tab" data-tab="gene-bank">GENE_BANK</button>
+                <button class="nav-tab" data-tab="climate">CLIMATE</button>
+            </nav>
+
+            <!-- Status Pill Counters -->
+            <div class="header-telemetry-strip">
+                <div class="telemetry-pill">
+                    <span class="pill-icon text-secondary">☀</span>
+                    <span id="header-day-text">DAY 01</span>
+                </div>
+                <div class="telemetry-pill">
+                    <span class="pill-icon text-tertiary">👥</span>
+                    <span id="header-pop-text">POP: 2</span>
+                </div>
+                <div class="telemetry-pill">
+                    <span class="pill-icon text-error">🍎</span>
+                    <span id="header-food-text">FOOD: 6</span>
+                </div>
+                <div class="telemetry-pill biome-pill">
+                    <span>🌿</span>
+                    <span>TEMPERATE GROVE</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN FIELD DESK -->
+    <main class="field-workspace">
+        <div class="workspace-container">
+            
+            <!-- TOP FIELD STATUS STRIP -->
+            <div class="field-rig-banner">
+                <div class="rig-info-group">
+                    <div class="rig-tag">
+                        <span class="rig-icon">🔬</span>
+                        <span class="rig-title">NATURALIST FIELD RIG // TERRARIUM #04</span>
+                    </div>
+                    <div class="rig-coords-data">
+                        <span>LAT: 44°12'N</span>
+                        <span>•</span>
+                        <span>HUMIDITY: 68% (OPTIMAL)</span>
+                        <span>•</span>
+                        <span class="text-primary font-bold">BIOME: TEMPERATE BROOK & OLD-GROWTH GROVE</span>
+                    </div>
+                </div>
+                <div class="rig-status-group">
+                    <span class="cycle-pill" id="cycle-counter-display">CYCLES: 1 TICK</span>
+                    <span class="capture-pill">
+                        <span class="capture-dot" id="system-status-dot"></span>
+                        <span id="system-status-label">ACTIVE RIG</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- 3-COLUMN CORE DESK -->
+            <div class="core-desk-grid">
+                
+                <!-- LEFT COLUMN: EXPEDITION WORKBENCH & TOOLKIT -->
+                <aside class="desk-col left-col">
+                    <!-- Toolkit Box -->
+                    <div class="parchment-card toolkit-card">
+                        <div class="card-plate-header">
+                            <span class="plate-title">TOOLKIT</span>
+                            <span class="plate-icon">⚙️</span>
+                        </div>
+
+                        <!-- Playback Action Buttons -->
+                        <div class="playback-btn-grid">
+                            <button id="btn-run" class="pixel-btn btn-run" title="Continuously run simulation">
+                                <span class="btn-icon">▶</span>
+                                <span id="run-btn-text">RUN</span>
+                            </button>
+                            <button id="btn-pause" class="pixel-btn btn-halt" title="Halt auto run">
+                                <span class="btn-icon">⏸</span>
+                                <span>HALT</span>
+                            </button>
+                            <button id="btn-next" class="pixel-btn btn-step full-width" title="Advance 1 day cycle">
+                                <span class="btn-icon">⏩</span>
+                                <span>STEP 1 DAY [SPACE]</span>
+                            </button>
+                        </div>
+
+                        <!-- Stepped Speed Slider & Rate Display -->
+                        <div class="rate-control-box">
+                            <div class="rate-label-row">
+                                <span class="label-muted">SOLAR RATE:</span>
+                                <span id="rate-display" class="rate-val text-primary">1.0x (700ms)</span>
+                            </div>
+                            <input type="range" id="speed-slider" min="1" max="4" value="2" step="1" class="pixel-slider">
+                            <div class="rate-ticks">
+                                <span>0.5x</span>
+                                <span>1.0x</span>
+                                <span>2.0x</span>
+                                <span>4.0x</span>
+                            </div>
+                        </div>
+
+                        <!-- Habitat Parameters / Configuration -->
+                        <div class="habitat-config-section">
+                            <span class="section-tag-label">HABITAT REGULATOR</span>
+                            <div class="config-inputs-grid">
+                                <div class="input-row">
+                                    <label for="cfg-grid-size">Grid Matrix</label>
+                                    <select id="cfg-grid-size" class="pixel-select">
+                                        <option value="10" selected>10 x 10 Tiles</option>
+                                        <option value="12">12 x 12 Tiles</option>
+                                        <option value="15">15 x 15 Tiles</option>
+                                    </select>
+                                </div>
+                                <div class="input-row-duo">
+                                    <div>
+                                        <label for="cfg-characters">Organisms</label>
+                                        <input type="number" id="cfg-characters" min="1" max="8" value="2" class="pixel-input">
+                                    </div>
+                                    <div>
+                                        <label for="cfg-food">Food</label>
+                                        <input type="number" id="cfg-food" min="1" max="15" value="6" class="pixel-input">
+                                    </div>
+                                </div>
+                                <div class="input-row-duo">
+                                    <div>
+                                        <label for="cfg-trees">Trees</label>
+                                        <input type="number" id="cfg-trees" min="0" max="10" value="3" class="pixel-input">
+                                    </div>
+                                    <div>
+                                        <label for="cfg-daily-food">Daily Drop</label>
+                                        <input type="number" id="cfg-daily-food" min="0" max="5" value="2" class="pixel-input">
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="btn-apply-config" class="pixel-btn btn-timber full-width">
+                                <span>RESPAWN BIOME</span>
+                            </button>
+                        </div>
+
+                        <!-- Experiment Presets -->
+                        <div class="presets-section">
+                            <span class="section-tag-label">FIELD PRESETS</span>
+                            <div class="preset-btn-stack">
+                                <button class="preset-option-btn" data-preset="standard">🌿 Standard Temperate Grove</button>
+                                <button class="preset-option-btn" data-preset="scarcity">🍂 Resource Scarcity Crisis</button>
+                                <button class="preset-option-btn" data-preset="jungle">🌴 Dense Jungle Sanctuary</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Specimen Index Roster -->
+                    <div class="parchment-card roster-card">
+                        <div class="roster-header-row">
+                            <span class="roster-title">SPECIMENS (<span id="roster-count">2</span>)</span>
+                            <span class="roster-icon">📋</span>
+                        </div>
+                        <div class="roster-scroll-list" id="specimen-roster-list">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- CENTER COLUMN: THE LIVING PIXEL BIOME VIEWPORT -->
+                <section class="desk-col center-col">
+                    <!-- Terrarium Oak Framing Exterior Box -->
+                    <div class="terrarium-oak-frame">
+                        <div class="brass-mount-rim">
+                            <!-- Vitrine Header Plaque -->
+                            <div class="vitrine-header-plaque">
+                                <div class="plaque-left">
+                                    <span class="plaque-square"></span>
+                                    <span class="plaque-title">CHAMBER A // VITRINE SPECIMEN TANK</span>
+                                    <span class="plaque-dim" id="vitrine-dim-label">DIM: 10×10 TILES</span>
+                                </div>
+                                <div class="plaque-right">
+                                    <span id="chamber-coord-tag">COORD: [X: -- / Y: --]</span>
+                                    <span class="plaque-badge">ACTIVE RIG 100%</span>
+                                </div>
+                            </div>
+
+                            <!-- THE WORLD GRID CONTAINER -->
+                            <div class="grid-frame-outer">
+                                <!-- Top X-Axis Ruler -->
+                                <div class="grid-ruler top-ruler" id="ruler-cols"></div>
+                                
+                                <div class="grid-middle-row">
+                                    <!-- Left Y-Axis Ruler -->
+                                    <div class="grid-ruler left-ruler" id="ruler-rows"></div>
+                                    
+                                    <!-- The Canvas World -->
+                                    <div class="world-canvas-wrapper" id="world-canvas-wrapper">
+                                        <!-- CSS Grid Container -->
+                                        <div id="world-grid" class="world-grid"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Terrarium Lower Rulers -->
+                            <div class="vitrine-lower-ruler">
+                                <span>X: 00</span>
+                                <span class="ruler-dots">• • • • • • NATURALIST HABITAT MATRIX • • • • • •</span>
+                                <span id="ruler-x-max">X: 09</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QUICK TERRARIUM ACTION BAR -->
+                    <div class="quick-action-bar">
+                        <div class="action-bar-left">
+                            <span class="action-label">CAMERA:</span>
+                            <button class="cam-btn active" id="btn-cam-all">ALL BIOME</button>
+                            <button class="cam-btn" id="btn-rehighlight-fov">FOV SCANNER</button>
+                        </div>
+                        <div class="action-bar-right">
+                            <span class="count-tag text-primary"><span class="dot bg-primary"></span> <span id="bar-pop-count">2</span> ORGANISMS</span>
+                            <span class="count-tag text-error"><span class="dot bg-error"></span> <span id="bar-food-count">6</span> FOOD</span>
+                            <span class="count-tag text-secondary"><span class="dot bg-secondary"></span> <span id="bar-tree-count">3</span> TREES</span>
+                        </div>
+                    </div>
+
+                    <!-- ACTION STATUS MESSAGE -->
+                    <div class="active-status-ribbon" id="active-status-ribbon">
+                        <span class="status-pulse-dot"></span>
+                        <span id="active-action-text">Ecosystem stable. Awaiting next cycle.</span>
+                    </div>
+                </section>
+
+                <!-- RIGHT COLUMN: EXPEDITION LOG & SPECIMEN DOSSIER -->
+                <aside class="desk-col right-col">
+                    <!-- NATURALIST ECOSYSTEM LEDGER -->
+                    <div class="parchment-card ledger-card">
+                        <!-- Wooden Pin Simulation -->
+                        <div class="wooden-pin"></div>
+                        <div class="ledger-header">
+                            <span class="ledger-title">ECOSYSTEM LOG</span>
+                            <span class="ledger-day-badge" id="ledger-day-badge">DAY 01</span>
+                        </div>
+
+                        <div class="ledger-table">
+                            <div class="ledger-row">
+                                <span class="lbl">CENSUS COUNT:</span>
+                                <span class="val font-bold" id="stat-population">2 Organisms</span>
+                            </div>
+                            <div class="ledger-row">
+                                <span class="lbl">FOOD DEPOSITS:</span>
+                                <span class="val text-error font-bold" id="stat-food">6 Available</span>
+                            </div>
+                            <div class="ledger-row">
+                                <span class="lbl">AVG VITALITY:</span>
+                                <span class="val text-primary font-bold" id="stat-avg-score">5.00 Pts</span>
+                            </div>
+                            <div class="ledger-row">
+                                <span class="lbl">APEX VITALITY:</span>
+                                <span class="val text-secondary font-bold" id="stat-max-score">5 Pts</span>
+                            </div>
+                        </div>
+
+                        <!-- Segmented Pixel Bar for Vitality -->
+                        <div class="biomass-integrity-box">
+                            <div class="integrity-labels">
+                                <span>BIOMASS INTEGRITY</span>
+                                <span id="integrity-status-text" class="text-primary font-bold">STABLE</span>
+                            </div>
+                            <div class="segmented-pixel-meter" id="biomass-meter">
+                                <div class="meter-seg bg-primary"></div>
+                                <div class="meter-seg bg-primary"></div>
+                                <div class="meter-seg bg-primary"></div>
+                                <div class="meter-seg bg-primary"></div>
+                                <div class="meter-seg bg-primary"></div>
+                                <div class="meter-seg bg-primary"></div>
+                                <div class="meter-seg bg-primary"></div>
+                                <div class="meter-seg bg-primary-container"></div>
+                                <div class="meter-seg bg-surface-dim"></div>
+                                <div class="meter-seg bg-surface-dim"></div>
+                            </div>
+                        </div>
+
+                        <!-- Micro Event Dispatch Banner -->
+                        <div class="micro-event-banner">
+                            <span class="micro-lbl">LATEST FIELD DISPATCH:</span>
+                            <p id="micro-event-text" class="micro-text">Genesis initialized. Specimens foraging across matrix.</p>
+                        </div>
+                    </div>
+
+                    <!-- RETRO ORGANISM DNA INSPECTOR -->
+                    <div class="parchment-card inspector-card" id="organism-inspector">
+                        <div class="card-plate-header">
+                            <span class="plate-title" id="inspector-header-name">SPECIMEN DOSSIER</span>
+                            <span class="plate-tag" id="inspector-header-tag">TARGET</span>
+                        </div>
+
+                        <div id="inspector-content" class="inspector-body">
+                            <!-- Populated dynamically via JS -->
+                            <div class="empty-inspector-msg">
+                                <span>🔍 Click any organism on the matrix or in the roster to inspect biological traits and Field of View</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+
+            <!-- BOTTOM FIELD RESEARCH JOURNAL RIBBON -->
+            <footer class="parchment-card journal-ribbon">
+                <div class="journal-header">
+                    <div class="journal-title-group">
+                        <span class="journal-tag">LEDGER TICKER</span>
+                        <span class="journal-title">FIELD RESEARCH JOURNAL // REAL-TIME DISPATCH</span>
+                    </div>
+                    <div class="journal-actions">
+                        <label class="auto-scroll-label">
+                            <input type="checkbox" id="chk-auto-scroll" checked>
+                            <span>Auto-scroll</span>
+                        </label>
+                        <button id="btn-clear-log" class="pixel-btn-sm">Clear Stream</button>
+                    </div>
+                </div>
+
+                <div class="journal-stream-terminal" id="log-terminal-stream">
+                    <!-- Log entries inserted dynamically -->
+                    <div class="log-entry">
+                        <span class="log-time">[GENESIS]</span>
+                        <span class="log-badge badge-primary">SYSTEM</span>
+                        <span class="log-msg">PRIMAL Terrarium Simulator initialized. Ready for evolution cycles.</span>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+    </main>
+
+    <!-- FOOTER STRIP -->
+    <footer class="field-footer-strip">
+        <div class="footer-inner">
+            <div class="footer-left">
+                <span id="footer-coord-tracker">GRID: [X: -- // Y: --]</span>
+                <span class="footer-divider">•</span>
+                <span>SEED: #9041-NATURALIST</span>
+                <span class="footer-divider">•</span>
+                <span class="clock-status"><span class="dot bg-primary"></span>CLOCK: ACTIVE // RUNNING</span>
+            </div>
+            <div class="footer-right">
+                <span>EXPEDITION FIELD STATION</span>
+                <span>© PRIMAL BIOSYSTEMS // NATURAL HISTORY RIG</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MAIN JAVASCRIPT ENGINE -->
+    <script src="/static/js/simulation.js"></script>
+</body>
+</html>

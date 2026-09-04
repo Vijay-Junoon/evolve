@@ -10,12 +10,14 @@ fig,ax = plt.subplots()
 # ! Character - 1, Food - 2, Empty - 0
 # ! Constants
 # * Perimeter Size
-ROWS = 15
-COLS = 15
+ROWS = 10
+COLS = 10
+DAYS = 5
 perimeter = [[0] * COLS for i in range(ROWS)]
 
+
 # * Entites
-CHARACTERS = 3
+CHARACTERS = 1
 FOOD = 5
 
 names = [
@@ -70,6 +72,18 @@ def spawnFood():
     perimeter[x][y] = 2
     entities['Food'].append(Food(x,y,foodScore))
 
+def eatFood(perimeter,char,features,x,y,food_x,food_y):
+  food_score = foodItem.getScore()
+  print(f"Character at {x,y} can eat food item at {food_x,food_y}")
+  print(f"Character at {x,y} ate food item at {food_x,food_y}")
+  exhausted.add((food_x,food_y))
+  features['survival_score'] += food_score
+  print(f"Character survival score: {features['survival_score']}")
+  perimeter[x][y] = 0
+  char.x,char.y = food_x,food_y
+  perimeter[food_x][food_y] = 1
+
+exhausted = set()
 visited = set()
 def searchFood(char,r,c):
   if r < 0 or r >= ROWS or c < 0 or c >= COLS or (r,c) in visited: 
@@ -77,9 +91,7 @@ def searchFood(char,r,c):
 
   visited.add((r,c))
   if perimeter[r][c] == 2:
-    perimeter[char.x][char.y] = 0
-    char.x,char.y = r,c
-    perimeter[r][c] = 1
+    eatFood(perimeter,char,features,char.x,char.y,r,c)
     return True
 
   return (searchFood(char,r+1,c) or
@@ -93,37 +105,36 @@ spawnFood()
 
 colourMap = ['green', 'red', 'blue']
 cmap = ListedColormap(colourMap)
-plt.figure(1)
-plt.imshow(perimeter, cmap=cmap)
-plt.colorbar()
-plt.show(block = False)
-for char in entities['Character']:
-  features = char.getFeatures()
-  fov = features['fov']
-  print(f"FOV: {fov}, survival_score: {features['survival_score']}")
-  x,y = char.getPos()
-  for foodItem in entities['Food']:
-    food_x,food_y = foodItem.getPos()
-    if perimeter[food_x][food_y] != 2:
-      continue
-    food_score = foodItem.getScore()
-    if abs(x - food_x) <= fov and abs(y-food_y) <= fov:
-      print(f"Character at {x,y} can eat food item at {food_x,food_y}")
-      print(f"Character at {x,y} ate food item at {food_x,food_y}")
-      features['survival_score'] += food_score
-      print(f"Character survival score: {features['survival_score']}")
-      perimeter[x][y] = 0
-      char.x,char.y = food_x,food_y
-      perimeter[food_x][food_y] = 1
-      break
-  else:
-    print("Nothing found in FOV. Search initiated.")
-    searchFood(char,x,y)
-    print(f"Character at {x,y} can eat food item at {char.x,char.y}")
-    print(f"Character at {x,y} ate food item at {char.x,char.y}")
+# plt.figure(1)
+# plt.imshow(perimeter, cmap=cmap)
+# plt.colorbar()
+# plt.show(block = False)
+print(perimeter)
 
-plt.figure(2)
-plt.imshow(perimeter, cmap=cmap)
-plt.colorbar()
-plt.show()
+# ! SIMULATE DAYS
+for day in range(DAYS):
+  print(f"------------------Day {day+1}------------------")
+  for char in entities['Character']:
+    features = char.getFeatures()
+    fov = features['fov']
+    print(f"FOV: {fov}, survival_score: {features['survival_score']}")
+    x,y = char.getPos()
+    for foodItem in entities['Food']:
+      food_x,food_y = foodItem.getPos()
+      if perimeter[food_x][food_y] != 2 or (food_x,food_y) in exhausted:
+        continue
+
+      if abs(x - food_x) <= fov and abs(y-food_y) <= fov:
+        eatFood(perimeter,char,features,x,y,food_x,food_y)
+        break
+    else:
+      print("Nothing found in FOV. Search initiated.")
+      searchFood(char,x,y)
+  print(perimeter)
+  print(f"------------------Day {day+1} Completed------------------")
+  plt.imshow(perimeter, cmap=cmap)
+  plt.title(f"Day- {day + 1}")
+  plt.colorbar()
+  plt.show()
+
 
