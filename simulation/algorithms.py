@@ -1,4 +1,6 @@
 import math
+from entities.character import Character
+
 
 def calculate_distance(pos1, pos2):
     """Euclidean distance between two 2D points."""
@@ -102,3 +104,27 @@ def get_directional_path(start_pos, target_pos):
         path.append([curr_x, curr_y])
 
     return path
+
+
+def reproduce(character, new_id=None):
+    """
+    Checks if character meets the reproduction criteria (survival_score >= 15).
+    If eligible:
+    - Deducts 10 from the parent's survival score.
+    - Creates and returns a new Character object at the same position.
+    Returns None if the character's score is less than 15.
+    """
+    features = character.get_features()
+    char_score = features.get('survival_score', 0)
+    x, y = character.get_pos()
+
+    if char_score >= 15:
+        features['survival_score'] -= 10
+        child_id = new_id if new_id is not None else (character.id + 100 if isinstance(character.id, int) else f"{character.id}_child")
+        child = Character(
+            char_id=child_id,
+            x=x,
+            y=y
+        )
+        return child
+    return None

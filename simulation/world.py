@@ -2,7 +2,6 @@ import random
 from entities.character import Character
 from entities.food import Food
 from entities.tree import Tree
-
 class World:
     """
     Manages the 2D habitat perimeter, spatial coordinates, entity collections,

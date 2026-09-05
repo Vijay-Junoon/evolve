@@ -292,7 +292,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Create lookup maps for fast cell entity retrieval
         const charMap = new Map();
-        characters.forEach(c => charMap.set(`${c.x},${c.y}`, c));
+        characters.forEach(c => {
+            const key = `${c.x},${c.y}`;
+            if (!charMap.has(key)) {
+                charMap.set(key, []);
+            }
+            charMap.get(key).push(c);
+        });
 
         const foodMap = new Map();
         food.forEach(f => foodMap.set(`${f.x},${f.y}`, f));
@@ -351,30 +357,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Layer 4: Characters / Organisms (Enlarged 190% sprites)
                 if (charMap.has(key)) {
-                    const charObj = charMap.get(key);
+                    const charsInCell = charMap.get(key);
                     const charLayer = document.createElement('div');
                     charLayer.className = 'entity-layer organism-layer';
 
-                    const charContainer = document.createElement('div');
-                    charContainer.className = 'organism-container';
-                    charContainer.id = `char-${charObj.id}`;
-                    if (state.selectedOrganismId === charObj.id) {
-                        charContainer.classList.add('selected');
-                    }
+                    charsInCell.forEach(charObj => {
+                        const charContainer = document.createElement('div');
+                        charContainer.className = 'organism-container';
+                        charContainer.id = `char-${charObj.id}`;
+                        if (state.selectedOrganismId === charObj.id) {
+                            charContainer.classList.add('selected');
+                        }
 
-                    const img = document.createElement('img');
-                    const spritePath = charObj.sprite ? `/static/assets/characters/${charObj.sprite}` : '/static/assets/characters/character_1.png';
-                    img.src = spritePath;
-                    img.alt = charObj.name;
-                    img.className = 'organism-sprite';
+                        const img = document.createElement('img');
+                        const spritePath = charObj.sprite ? `/static/assets/characters/${charObj.sprite}` : '/static/assets/characters/character_1.png';
+                        img.src = spritePath;
+                        img.alt = charObj.name;
+                        img.className = 'organism-sprite';
 
-                    const badge = document.createElement('span');
-                    badge.className = 'organism-badge';
-                    badge.textContent = `❤️ ${charObj.features.survival_score}`;
+                        const badge = document.createElement('span');
+                        badge.className = 'organism-badge';
+                        badge.textContent = `❤️ ${charObj.features.survival_score}`;
 
-                    charContainer.appendChild(img);
-                    charContainer.appendChild(badge);
-                    charLayer.appendChild(charContainer);
+                        charContainer.appendChild(img);
+                        charContainer.appendChild(badge);
+                        charLayer.appendChild(charContainer);
+                    });
                     cell.appendChild(charLayer);
                 }
 
@@ -534,6 +542,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     setActionMessage(ev.message);
                     if (elements.microEventText) elements.microEventText.textContent = ev.message;
                     await animateEating(ev.position, ev.food_score, ev.character_id, ev.new_survival_score);
+                    break;
+
+                case 'reproduce':
+                    setActionMessage(ev.message);
+                    if (elements.microEventText) elements.microEventText.textContent = ev.message;
+                    await animateReproduction(ev.position, ev.parent_id, ev.child_id, ev.parent_vitality);
                     break;
 
                 case 'food_replenished':
@@ -753,6 +767,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         await sleep(120);
+    }
+
+    /**
+     * Animates organism reproduction burst when survival score reaches >= 15.
+     */
+    async function animateReproduction(position, parentId, childId, parentVitality) {
+        const [r, c] = position;
+        const cell = document.getElementById(`cell-${r}-${c}`);
+        
+        if (cell) {
+            cell.classList.add('reproduce-flare');
+
+            const burst = document.createElement('div');
+            burst.className = 'reproduce-burst';
+            burst.textContent = `🐣 REPRODUCED!`;
+            cell.appendChild(burst);
+
+            const parentContainer = document.getElementById(`char-${parentId}`);
+            if (parentContainer) {
+                const badge = parentContainer.querySelector('.organism-badge');
+                if (badge && parentVitality !== undefined) {
+                    badge.textContent = `❤️ ${parentVitality}`;
+                }
+                parentContainer.style.transform = 'translate(-50%, -50%) scale(1.35)';
+                await sleep(200);
+                parentContainer.style.transform = '';
+            }
+
+            setTimeout(() => {
+                if (burst.parentNode) burst.parentNode.removeChild(burst);
+                cell.classList.remove('reproduce-flare');
+            }, 1200);
+        }
+
+        await sleep(250);
     }
 
     // =========================================================================
@@ -1014,6 +1063,10 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'eat':
                 badgeClass = 'badge-primary';
                 badgeLabel = 'FEED';
+                break;
+            case 'reproduce':
+                badgeClass = 'badge-primary';
+                badgeLabel = 'REPRODUCE';
                 break;
             case 'food_replenished':
                 badgeClass = 'badge-tertiary';

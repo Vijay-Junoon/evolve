@@ -1,6 +1,6 @@
 import random
 from simulation.world import World
-from simulation.algorithms import find_food_in_fov, dfs_search_food, get_directional_path
+from simulation.algorithms import find_food_in_fov, dfs_search_food, get_directional_path, reproduce
 
 class SimulationEngine:
     """
@@ -193,6 +193,7 @@ class SimulationEngine:
                 # Survived transit -> Consume food
                 food_score = best_target.get_score()
                 char.consume_food(food_score)
+                
                 char.last_action = f"Foraged in FOV (+{food_score} Vitality)"
                 self.world.remove_food(best_target)
 
@@ -209,6 +210,27 @@ class SimulationEngine:
                 }
                 day_events.append(eat_event)
                 self.all_events.append(eat_event)
+
+                # Check reproduction criteria (survival_score >= 15)
+                offspring = reproduce(char, self.world._next_char_id)
+                if offspring:
+                    self.world._next_char_id += 1
+                    self.world.characters.append(offspring)
+                    char.last_action = f"Reproduced at ({char.x}, {char.y})"
+                    reproduce_event = {
+                        'type': 'reproduce',
+                        'day': current_day,
+                        'parent_id': char.id,
+                        'parent_name': char.name,
+                        'child_id': offspring.id,
+                        'child_name': offspring.name,
+                        'position': [char.x, char.y],
+                        'parent_vitality': char.features['survival_score'],
+                        'child_vitality': offspring.features['survival_score'],
+                        'message': f"🐣 REPRODUCTION: {char.name} reached vitality threshold and reproduced! {offspring.name} spawned at ({char.x}, {char.y}) [Parent Vitality: {char.features['survival_score']}]."
+                    }
+                    day_events.append(reproduce_event)
+                    self.all_events.append(reproduce_event)
 
             else:
                 # Step 2: No food in FOV -> Fallback recursive DFS search
@@ -321,6 +343,27 @@ class SimulationEngine:
                         }
                         day_events.append(eat_event)
                         self.all_events.append(eat_event)
+
+                        # Check reproduction criteria (survival_score >= 15)
+                        offspring = reproduce(char, self.world._next_char_id)
+                        if offspring:
+                            self.world._next_char_id += 1
+                            self.world.characters.append(offspring)
+                            char.last_action = f"Reproduced at ({char.x}, {char.y})"
+                            reproduce_event = {
+                                'type': 'reproduce',
+                                'day': current_day,
+                                'parent_id': char.id,
+                                'parent_name': char.name,
+                                'child_id': offspring.id,
+                                'child_name': offspring.name,
+                                'position': [char.x, char.y],
+                                'parent_vitality': char.features['survival_score'],
+                                'child_vitality': offspring.features['survival_score'],
+                                'message': f"🐣 REPRODUCTION: {char.name} reached vitality threshold and reproduced! {offspring.name} spawned at ({char.x}, {char.y}) [Parent Vitality: {char.features['survival_score']}]."
+                            }
+                            day_events.append(reproduce_event)
+                            self.all_events.append(reproduce_event)
                 else:
                     dfs_fail_event = {
                         'type': 'dfs_fail',
